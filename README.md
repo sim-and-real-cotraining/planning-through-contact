@@ -5,9 +5,8 @@ This repository was used to generate all simulated datasets in our paper on the 
 ---
 
 ## Installation (Linux and MacOS)
-If you run into Git LFS errors while attempting to clone the repository, try setting `GIT_LFS_SKIP_SMUDGE=1`.
 ```
-GIT_LFS_SKIP_SMUDGE=1 git clone git@github.com:adamw8/planning-through-contact.git
+git clone git@github.com:sim-and-real-cotraining/planning-through-contact.git
 ```
 
 This repo uses Poetry for dependency management. To setup this project, first
