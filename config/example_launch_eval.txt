@@ -1,0 +1,3 @@
+checkpoint_path,run_dir,config_name
+/home/adam/workspace/gcs-diffusion/data/outputs/sim_sim/baseline_carbon/150, eval/sim_sim/baseline/carbon/150, gamepad_teleop_carbon.yaml
+/home/adam/workspace/gcs-diffusion/data/outputs/sim_sim/baseline_carbon/150/checkpoints/latest.ckpt, eval/sim_sim/baseline_carbon/50, gamepad_teleop_carbon.yaml

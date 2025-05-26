@@ -1,0 +1,205 @@
+# sim config for the real iiwa set up
+dynamics_config:
+  _target_: planning_through_contact.planning.planar.planar_plan_config.SliderPusherSystemConfig
+  pusher_radius: 0.015
+  friction_coeff_table_slider: 0.5
+  friction_coeff_slider_pusher: 0.1
+  grav_acc: 9.81
+  integration_constant: 0.3
+  force_scale: 0.01
+
+# specifies type of slider. See real_iiwa_sim_config.yaml for example of using arbitrary shape
+slider_type: 'box'
+arbitrary_shape_pickle_path: null
+arbitrary_shape_rgba: null
+arbitrary_shape_visual_mesh_path: null # Can be null (collision mesh will be used)
+
+physical_properties: # Slider physical properties
+  _target_: planning_through_contact.tools.utils.PhysicalProperties
+  mass: 0.1
+  inertia: [[1e-5, 0.0, 0.0], [0.0, 1e-5, 0.0], [0.0, 0.0, 1e-5]]
+  center_of_mass: null # [0.0, 0.0, 0.0] # Use null for uniform densit7y
+  is_compliant: true
+  hydroelastic_modulus: 1.0e6
+  # NOTE: These friction coefficients are used for sim while the ones in `dynamic_config` are used for planning!
+  mu_dynamic: 0.5
+  mu_static: 0.5
+  mesh_resolution_hint: 0.01
+contact_model: ContactModel.kHydroelastic
+visualize_desired: true # visualize desired goal pose
+
+# initial slider and pusher poses
+slider_goal_pose:
+  _target_: planning_through_contact.geometry.planar.planar_pose.PlanarPose
+  x: 0.587
+  y: -0.0355
+  theta: 0.0
+pusher_start_pose:
+  _target_: planning_through_contact.geometry.planar.planar_pose.PlanarPose
+  x: 0.587
+  y: 0.15
+  theta: 0.0
+
+time_step: 0.001
+closed_loop: false # MPC flag
+draw_frames: true
+use_realtime: false
+delay_before_execution: 5.0 # gives time for simulation to settle
+save_plots: false
+
+# Diffusion policy config
+# Configures the diffusion policy for evaluation
+# Not used during data generation
+diffusion_policy_config:
+  _target_: planning_through_contact.simulation.controllers.diffusion_policy_source.DiffusionPolicyConfig
+  checkpoint: '/home/adam/workspace/gcs-diffusion/data/outputs/finetune/pretrained/pretrained_2000_epochs_250/checkpoints/latest.ckpt'
+  initial_pusher_pose: ${pusher_start_pose}
+  target_slider_pose: ${slider_goal_pose}
+  diffusion_policy_path: '/home/adam/workspace/gcs-diffusion'
+  freq: 10.0
+  delay: ${delay_before_execution}
+  debug: false
+  device: 'cuda:0'
+  cfg_overrides:
+    n_action_steps: 8
+use_hardware: false
+pusher_z_offset: 0.0125
+
+# For more advanced camera configs (ex. shadows)
+# see config/sim_config/sim_sim/gamepad_teleop_carbon.yaml
+camera_configs:
+  - name: 'overhead_camera'
+    orientation:
+      roll: -2.5563905364353046
+      pitch: -0.035024118674409785
+      yaw: 1.5462387054402587
+    position: [0.91099349, -0.07440916, 0.45068324]
+    width: 640
+    height: 480
+    center_x: 318.05
+    center_y: 244.107
+    focal_x: 616.704
+    focal_y: 616.777
+    background:
+      r: 0.47
+      g: 0.39
+      b: 0.27
+      a: 1.0
+    show_rgb: false
+    randomize: true
+  - name: 'wrist_camera'
+    parent_frame: 'iiwa_link_7'
+    orientation:
+      roll: 0.2
+      pitch: 0.0
+      yaw: 1.5707
+    position:
+      - -0.0825
+      - -0.024
+      - 0.0575
+    width: 640
+    height: 480
+    center_x: 318.05
+    center_y: 244.107
+    focal_x: 616.704
+    focal_y: 616.777
+    light_direction: [0.25, 1.0, 1.75]
+    background:
+      r: 0.47
+      g: 0.39
+      b: 0.27
+      a: 1.0
+    show_rgb: false
+    randomize: false
+# domain randomization range for RGB colors
+# Note that RGB values are normalized to [0, 1]
+domain_randomization_color_range: 0.025
+log_dir: 'diffusion_policy_logs'
+
+# Multi-run config
+# Configures the multi-run evaluation
+# Used during evaluation
+# See config/sim_config/sim_sim/gamepad_teleop_carbon.yaml for more details
+multi_run_config:
+  _target_: planning_through_contact.simulation.planar_pushing.planar_pushing_sim_config.MultiRunConfig
+  num_runs: 10 # number of rounds to evaluate
+  max_attempt_duration: 120 # max duration of each trial
+  seed: 42 # random seed
+  slider_type: ${slider_type}
+  arbitrary_shape_pickle_path: ${arbitrary_shape_pickle_path}
+  pusher_start_pose: ${pusher_start_pose}
+  slider_goal_pose: ${slider_goal_pose}
+  workspace_width: 0.3
+  workspace_height: 0.3
+  trans_tol: 0.02 # translational tolerance
+  rot_tol: 5 # rotational tolerance (degrees)
+  evaluate_final_pusher_position: true
+  evaluate_final_slider_rotation: true
+  slider_physical_properties: ${physical_properties}
+
+## Robot specific configs
+# sim_config
+scene_directive_name: 'planar_pushing_iiwa_plant_hydroelastic.yaml'
+default_joint_positions: [0.6202, 1.0135, -0.5873, -1.4182, 0.6449, 0.8986, 2.98796]
+
+# position controller / robot station
+robot_station:
+  _target_: planning_through_contact.simulation.controllers.iiwa_hardware_station.IiwaHardwareStation
+  sim_config: null  # override in hydra.utils.instantiate
+  meshcat: null     # override in hydra.utils.instantiate
+
+## Data Collection Config
+data_collection_config:
+  _target_: planning_through_contact.simulation.environments.data_collection_table_environment.DataCollectionConfig
+  
+  # Controls which parts of the data collection process are performed
+  generate_plans: true
+  render_plans: true
+  convert_to_zarr: true
+  convert_to_zarr_reduce: false # MIT Supercloud flag
+  # Directory to save trajectories
+  plans_dir: 'trajectories/example'
+  rendered_plans_dir: 'trajectories_rendered/example'
+  zarr_path: 'trajectories_rendered/example.zarr'
+  
+  policy_freq: 10.0
+
+  # Chunk sizes for more efficient zarr conversion
+  state_chunk_length: 1024
+  action_chunk_length: 2048
+  target_chunk_length: 1024
+  image_chunk_length: 128
+
+  # Size of images used during rendering
+  image_width: 128
+  image_height: 128
+
+  plan_config:
+    _target_: planning_through_contact.simulation.environments.data_collection_table_environment.PlanConfig
+    slider_type: ${slider_type}
+    arbitrary_shape_pickle_path: ${arbitrary_shape_pickle_path}
+    pusher_radius: 0.015
+    contact_lam_min: 0.2
+    contact_lam_max: 0.8
+    distance_to_object_socp: 0.25
+    ang_velocity_regularization: 25 # null
+    # initialization workspace for slider
+    width: 0.35
+    height: 0.5
+    center:
+      - ${slider_goal_pose.x}
+      - ${slider_goal_pose.y}
+    buffer: 0.0
+    seed: 0
+    # number of plans to generate per GCS solve
+    # the total number of plans generated will be num_plans * num_unique_plans
+    num_plans: 5
+    pusher_start_pose: ${pusher_start_pose}
+    slider_goal_pose: ${slider_goal_pose}
+    limit_rotations: false
+    noise_final_pose: false
+    num_unique_plans: 2 # number of unique plans to generate per GCS solve
+    sort_plans: true # select the best GCS plans
+  ## MIT Supercloud specific configs
+  LLSUB_RANK: null
+  LLSUB_SIZE: null

@@ -1,0 +1,44 @@
+directives:
+- add_model:
+    name: iiwa
+    file: package://drake/manipulation/models/iiwa_description/iiwa7/iiwa7_no_collision.sdf
+    default_joint_positions:
+        iiwa_joint_1: [0.6202]
+        iiwa_joint_2: [1.0135]
+        iiwa_joint_3: [-0.5873]
+        iiwa_joint_4: [-1.4182]
+        iiwa_joint_5: [0.6449]
+        iiwa_joint_6: [0.8986]
+        iiwa_joint_7: [2.9879]
+
+- add_weld:
+    parent: world
+    child: iiwa::iiwa_link_0
+    X_PC:
+        rotation: !Rpy { deg: [0.0, 0.0, 0.0]}
+        translation: [0.0, 0.0, 0.0]
+
+- add_model:
+    name: pusher
+    file: package://planning_through_contact/pusher_floating_hydroelastic.sdf
+
+- add_frame:
+    name: pusher_base
+    X_PF:
+        base_frame: pusher::pusher
+        rotation: !Rpy { deg: [0.0, 0.0, 0.0]}
+        # displace by half of the pusher length, so the pusher starts
+        # exactly at the iiwa_link_7 base frame
+        translation: [0.0, 0.0, -0.12]
+
+- add_weld:
+    parent: iiwa::iiwa_link_7
+    child: pusher_base
+        
+- add_frame:
+    name: pusher_end
+    X_PF:
+        base_frame: pusher_base
+        rotation: !Rpy { deg: [0.0, 0.0, 0.0]}
+        # displace by pusher length
+        translation: [0.0, 0.0, 0.2075]
