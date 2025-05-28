@@ -1,4 +1,19 @@
 # Planning Through Contact
+[[Project page]](v)
+[[Paper]](https://arxiv.org/abs/2503.22634)
+[[Training Code]](https://github.com/sim-and-real-cotraining/diffusion-policy)
+
+[Adam Wei](https://adamwei.com/)<sup>1</sup>,
+[Abhinav Agarwal](https://sites.mit.edu/abhinav/)<sup>1</sup>,
+[Boyuan Chen](https://boyuan.space/)<sup>1</sup>,
+[Rohan Bosworth](https://www.linkedin.com/in/rohan-b-92940b201)<sup>1</sup>,
+[Nicholas Pfaff](https://nepfaff.github.io/)<sup>1</sup>,
+[Russ Tedrake](https://locomotion.csail.mit.edu/russt.html)<sup>1,2</sup>,
+
+<sup>1</sup>MIT,
+<sup>2</sup>Toyota Research Institute,
+
+<img src="media/anchor_white_background.png" alt="drawing" width="100%"/>
 
 This repository was used to generate all simulated datasets in our paper on the [Empirical Analysis of Sim-and-Real Cotraining of Diffusion Policies for Planar Pushing from Pixels](https://arxiv.org/abs/2503.22634). It forks the original [planning-through-contact](https://github.com/bernhardpg/planning-through-contact) repository and provides wrappers for data generation.
 
