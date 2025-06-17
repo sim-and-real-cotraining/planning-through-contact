@@ -1,5 +1,5 @@
 # Planning Through Contact
-[[Project page]]((https://sim-and-real-cotraining.github.io/))
+[[Project page]](https://sim-and-real-cotraining.github.io/)
 [[Paper]](https://arxiv.org/abs/2503.22634)
 [[Training Code]](https://github.com/sim-and-real-cotraining/diffusion-policy)
 
